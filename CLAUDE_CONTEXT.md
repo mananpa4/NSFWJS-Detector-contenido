@@ -55,6 +55,14 @@
 
 - Ninguna bloqueante. Confirmar cuándo hacer commit inicial y si `words.extra.txt` se aporta ahora.
 
+## 7. Integración chismy.com (2026-09-16) — paquete `integrations/chismy-nsfw-2026-09-16.zip`
+
+- **Diagnóstico:** SafeSearch nativo (`detect_safe_search`, Vision API) activo pero ciego (`adult_images=1`, sin clave válida → deja pasar todo). Filtro de texto ya robusto (plurales ES/EN, mask 1ª mitad, 6452 palabras); Node-chat solo exact-match (sin plurales).
+- **Receta cPanel (sin TF/Py en servidor):** NSFWJS en navegador (pre-check + veredicto) + servidor best-effort (bloquea texto ≥3 hits, 100% confiable) + cola `Wo_Chismy_Media_Moderation` + `active=0` nativo para dudosos + admin en página existente.
+- **Zip verificado:** 16 archivos (3 nuevos + 12 modificados + SQL en raíz), 0 backslashes, `unzip -t` OK, cmp 16/16. Staging en `integrations/chismy-nsfw/` (chismy.com intacto).
+- **Mejoras texto:** CJK por subcadena + tilde ES (`aviones`→`avión`) + `Wo_ProfanityCountHits()` en PHP y paridad Node.
+- **Pendiente usuario:** importar SQL, subir zip, probar. Fase 2: VPS NSFWJS-Detector + `nsfw_api_url`.
+
 ## 7. SKILLS.md — decisión
 
 - **No crear** (2026-09-16). Reevaluar al estabilizarse: prompt VLM 2ª opinión, receta calibración, receta blur por segmentación.
