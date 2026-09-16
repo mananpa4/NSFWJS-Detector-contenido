@@ -1,0 +1,70 @@
+name: moderacion
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "3000:3000"
+    environment:
+      STORE: postgres
+      QUEUE: bullmq
+      IMAGE_PROVIDER: nsfwjs
+      PY_SVC_URL: http://py-svc:8001
+      DATABASE_URL: postgres://moderacion:moderacion@postgres:5432/moderacion
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+      - py-svc
+
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    environment:
+      QUEUE: bullmq
+      REDIS_URL: redis://redis:6379
+      PY_SVC_URL: http://py-svc:8001
+      OLLAMA_ENABLED: "true"
+      OLLAMA_URL: http://ollama:11434
+    volumes:
+      - assets:/assets
+    depends_on:
+      - redis
+      - py-svc
+      - ollama
+
+  py-svc:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.py-svc
+    ports:
+      - "8001:8001"
+    volumes:
+      - assets:/assets
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: moderacion
+      POSTGRES_PASSWORD: moderacion
+      POSTGRES_DB: moderacion
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+
+  # VLM 2a opinión (perfil pesado: solo con --profile vlm)
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["vlm"]
+    volumes:
+      - ollama:/root/.ollama
+
+volumes:
+  pgdata:
+  ollama:
+  assets:

@@ -1,0 +1,9 @@
+FROM node:22-slim
+WORKDIR /app
+COPY package.json pnpm-workspace.yaml ./
+COPY packages/api/package.json packages/api/
+RUN corepack enable && pnpm install --filter @moderacion/api --prod --ignore-scripts
+COPY packages/api ./packages/api
+RUN pnpm --filter @moderacion/api build
+EXPOSE 3000
+CMD ["node", "packages/api/dist/index.js"]

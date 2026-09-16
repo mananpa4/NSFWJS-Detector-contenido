@@ -1,0 +1,14 @@
+{
+  "name": "@moderacion/web-precheck",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pre-check en navegador: NSFWJS via TensorFlow.js + blur pre-subida",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0"
+  }
+}

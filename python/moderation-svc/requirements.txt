@@ -1,0 +1,19 @@
+# moderation-svc: rostros (FaceGuard) + OCR + clasificacion pesada.
+# Núcleo web siempre; visión/OCR con degradación elegante (patrón FaceGuard).
+
+# API
+fastapi>=0.115
+uvicorn[standard]>=0.32
+
+# Rostros: detección Haar + (opcional) MediaPipe malla 468 pts.
+# opencv-contrib-python (no opencv-python): el módulo cv2.face queda
+# disponible por si se añade reconocimiento LBPH en fase 2.
+opencv-contrib-python>=4.8.0
+numpy>=1.24
+mediapipe>=0.10.9  # opcional: sin él solo funciona Haar
+
+# OCR (opcional, pesado: descarga modelo + torch la primera vez)
+easyocr>=1.7.0  # opcional: sin él /ocr devuelve texto vacío
+
+# Clasificación pesada imagen/video (opcional; NSFWJS en Node es el default)
+onnxruntime>=1.19.0  # opcional: SafeVision / ViT ONNX

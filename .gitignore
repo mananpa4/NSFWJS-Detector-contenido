@@ -1,0 +1,41 @@
+# Deps y build
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# Env y secretos (ver .env.example)
+.env
+.env.local
+*.pem
+*.key
+
+# Datos locales y modelos (se descargan en build, no se commitean)
+*.db
+*.db-*
+*.log
+models/
+*.onnx
+*.pt
+*.bin
+*.weights
+
+# Test outputs y temporales
+tmp/
+temp/
+out-frames/
+chismy_media_*
+.ffmpeg_test/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# OS / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

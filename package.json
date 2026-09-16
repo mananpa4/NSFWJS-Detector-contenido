@@ -1,0 +1,17 @@
+{
+  "name": "nsfw-detector-contenido",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Moderacion de imagenes y video para proteger AdSense/Meta: NSFWJS + YOLO/ONNX + OCR + rostros + filtro de texto + VLM 2a opinion",
+  "packageManager": "pnpm@10.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "dev:api": "pnpm --filter @moderacion/api dev",
+    "dev:worker": "pnpm --filter @moderacion/worker dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
