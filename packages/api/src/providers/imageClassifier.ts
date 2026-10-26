@@ -6,22 +6,16 @@ export interface ImageClassifier {
   classify(imagePath: string): Promise<{ scores: NsfwScores; latencyMs: number }>;
 }
 
-function emptyScores(): NsfwScores {
-  return { porn: 0, sexy: 0, hentai: 0, neutral: 1, drawing: 0 };
-}
-
 /**
- * NSFWJS (`nsfwjs` + `@tensorflow/tfjs-node`). Imports lazy para no
- * obligar a la dependencia nativa si IMAGE_PROVIDER es otro.
- * TODO(vibecoding): cablear load() + inferencia real sobre el buffer.
+ * NSFWJS **real** (`@moderacion/nsfw`: TensorFlow.js + pesos del paquete).
+ * Imports lazy para no cargar el modelo si `IMAGE_PROVIDER` es otro.
  */
 export class NsfwJsClassifier implements ImageClassifier {
   name = 'nsfwjs';
-  async classify(_imagePath: string): Promise<{ scores: NsfwScores; latencyMs: number }> {
-    const started = Date.now();
-    await import('nsfwjs').catch(() => null);
-    // Sin modelo cargado aun: senal neutra + latencia real del intento.
-    return { scores: emptyScores(), latencyMs: Date.now() - started };
+  async classify(imagePath: string): Promise<{ scores: NsfwScores; latencyMs: number }> {
+    const { classifyImageFile } = await import('@moderacion/nsfw');
+    const { scores, latencyMs } = await classifyImageFile(imagePath);
+    return { scores, latencyMs };
   }
 }
 
@@ -29,7 +23,8 @@ export class NsfwJsClassifier implements ImageClassifier {
 export class HfVitClassifier implements ImageClassifier {
   name = 'hf-vit';
   async classify(_imagePath: string): Promise<{ scores: NsfwScores; latencyMs: number }> {
-    return { scores: emptyScores(), latencyMs: 0 };
+    const empty: NsfwScores = { porn: 0, sexy: 0, hentai: 0, neutral: 1, drawing: 0 };
+    return { scores: empty, latencyMs: 0 };
   }
 }
 

@@ -4,8 +4,8 @@
 
 ## 1. Estado actual
 
-- **Fase:** scaffold híbrido completo + capa marketplace Trust & Safety. Monorepo pnpm + FastAPI + Docker.
-- **Verde (2026-10-11):** `tsc` limpio en 3 paquetes; api **32/32 tests** (decide 6 + texto 8 + evasion 9 + marketplace 9); worker 5/5; `smoke_no_deps.py` OK; `calibrate --demo` OK; `extract-frames.ps1` e2e OK.
+- **Fase:** scaffold híbrido completo + capa marketplace Trust & Safety + **inferencia NSFWJS real** (imagen y vídeo). Monorepo pnpm + FastAPI + Docker.
+- **Verde (2026-10-26):** `tsc` limpio en 4 paquetes; api **32/32 tests**; worker **8/8** (5 agregación + 3 pipeline de vídeo real); **nsfw 3/3** (inferencia real); `smoke_no_deps.py` OK; `calibrate --demo` OK; `extract-frames.ps1` e2e OK.
 - **Infraestructura decidida por el usuario:** API + worker + Docker; runtime híbrido Node.js+TS + FastAPI; OCR + rostros en MVP; Ollama en MVP (off por defecto); persistencia híbrida (memory+sqlite+postgres, BullMQ opcional).
 
 ## 2. Funcionalidades implementadas
@@ -24,6 +24,12 @@
 - Scripts + Docker + `docs/` (3) + `.env.example`.
 
 ## 3. En progreso / pendientes
+
+> **2026-10-26:** el pendiente **#1 (inferencia real NSFWJS) está HECHO** — ver
+> `packages/nsfw` (`@moderacion/nsfw`): TensorFlow.js + nsfwjs, JPEG/PNG sin
+> nativas, backend WASM con fallback CPU, modelo singleton, `frameClassifier()`
+> para vídeo. `NsfwJsClassifier.classify()` clasifica de verdad y
+> `moderateVideo()` lo usa por defecto. El **#8 (commit)** también está hecho.
 
 1. [ ] Inferencia real NSFWJS (`NsfwJsClassifier.classify`, hoy neutra) — instalar `nsfwjs` + `@tensorflow/tfjs-node`.
 2. [ ] `/classify` ONNX en py-svc + instalar `onnxruntime`.
@@ -50,9 +56,15 @@
 | **2026-10-11** | **Señales marketplace en `decide()` como campo opcional** | Backward compatible: sin `marketplaceRisk` el comportamiento es idéntico al v0.1.0 |
 | **2026-10-11** | **`marketplace-es.json` en `data/` (fuente), no copiado a dist** | El loader usa ruta relativa al src; test usa `../../data` desde dist/test |
 
+| **2026-10-26** | **NSFWJS real en `packages/nsfw` (paquete propio)** | API y worker lo comparten sin duplicar código ni dependencias nativas |
+| **2026-10-26** | **Backend WASM con fallback CPU (sin `tfjs-node`)** | `@tensorflow/tfjs-node` necesita libtensorflow nativo; el WASM corre en cualquier Node 20+ y es ~10× más rápido que CPU para lotes de frames |
+| **2026-10-26** | **Decodificación JPEG/PNG con `jpeg-js`/`pngjs`** | Sin `sharp` ni nativas: los frames que extrae ffmpeg son JPEG |
+| **2026-10-26** | **`moderateVideo` clasifica con NSFWJS por defecto** | El poder de vídeo queda activo sin cablear nada; `neutralFrame` sigue para tests |
+| **2026-10-26** | **Extensiones de vídeo ampliadas (34)** | Todas las habituales (`3g2`, `f4v`, `mxf`, `ogm`, `qt`, `y4m`…); ffprobe sigue mandando sobre la extensión |
+
 ## 5. Problemas conocidos
 
-- `NsfwJsClassifier` y `HfVitClassifier` devuelven neutro (stubs tipados).
+- `HfVitClassifier` devuelve neutro (stub tipado); `NsfwJsClassifier` ya clasifica de verdad.
 - `py-svc` sin FastAPI instalado localmente: solo `py_compile` + smoke stdlib.
 - Sin muestra etiquetada real: umbrales sin validar empíricamente.
 - `detectEvasion` heurístico: `LEET` puede dar falsos positivos con precios (`$50`).

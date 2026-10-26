@@ -21,7 +21,13 @@ export interface MediaProbe {
 const IMAGE_EXT = new Set(['avif', 'bmp', 'heic', 'heif', 'ico', 'jpeg', 'jpg', 'jxl', 'png', 'tif', 'tiff', 'webp']);
 const ANIMATED_EXT = new Set(['apng', 'gif']);
 const AUDIO_EXT = new Set(['aac', 'ac3', 'aif', 'aiff', 'amr', 'ape', 'dts', 'flac', 'm4a', 'mka', 'mp2', 'mp3', 'oga', 'ogg', 'opus', 'wav', 'wma', 'wv']);
-const VIDEO_EXT = new Set(['3gp', 'asf', 'avi', 'divx', 'flv', 'm2ts', 'm4v', 'mkv', 'mov', 'mp4', 'mpeg', 'mpg', 'mts', 'ogv', 'rm', 'rmvb', 'ts', 'vob', 'webm', 'wmv']);
+/** Todas las extensiones de vídeo (además de lo que detecte ffprobe por el stream). */
+const VIDEO_EXT = new Set([
+  '3g2', '3gp', 'asf', 'avi', 'divx', 'f4v', 'flv', 'm1v', 'm2ts', 'm2v', 'm4v',
+  'mkv', 'mov', 'mp2', 'mp2v', 'mp4', 'mpe', 'mpeg', 'mpeg2', 'mpg', 'mpv',
+  'mpv2', 'mts', 'mxf', 'ogm', 'ogv', 'qt', 'rm', 'rmvb', 'ts', 'vob', 'webm',
+  'wmv', 'y4m',
+]);
 
 function extOf(path: string): string {
   const name = path.split('?')[0]?.split('#')[0]?.replace(/\\/g, '/').split('/').pop() ?? '';

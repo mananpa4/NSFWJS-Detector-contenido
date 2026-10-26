@@ -11,6 +11,24 @@ export async function neutralFrame(_framePath: string): Promise<FrameScore> {
   return { porn: 0, sexy: 0 };
 }
 
+let nsfwClassify: ClassifyFrame | null = null;
+
+/**
+ * Clasificador real de frames (NSFWJS sobre TensorFlow.js, en `@moderacion/nsfw`).
+ * El modelo se carga una sola vez y se reutiliza entre frames.
+ */
+export function nsfwFrameClassifier(): ClassifyFrame {
+  return async (framePath: string): Promise<FrameScore> => {
+    let classify = nsfwClassify;
+    if (classify === null) {
+      const { frameClassifier } = await import('@moderacion/nsfw');
+      classify = frameClassifier();
+      nsfwClassify = classify;
+    }
+    return classify(framePath);
+  };
+}
+
 export interface VideoJobResult {
   jobId: string;
   frames: number;
@@ -22,11 +40,13 @@ export interface VideoJobResult {
 /**
  * Pipeline de video: probe -> frames (1 fps) -> batch clasificador ->
  * agregacion -> (si pendiente) 2a opinion VLM sobre el peor frame.
+ *
+ * Sin `classify` se usa **NSFWJS real** (`nsfwFrameClassifier()`).
  */
 export async function moderateVideo(
   jobId: string,
   videoPath: string,
-  classify: ClassifyFrame = neutralFrame,
+  classify: ClassifyFrame = nsfwFrameClassifier(),
   fps = 1,
 ): Promise<VideoJobResult> {
   const info = await probe(videoPath);

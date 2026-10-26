@@ -1,0 +1,32 @@
+{
+  "name": "@moderacion/nsfw",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Inferencia NSFWJS real (TensorFlow.js) para imagen y frames de video",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/test/*.test.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-backend-wasm": "^4.22.0",
+    "buffer": "^6.0.3",
+    "jpeg-js": "^0.4.4",
+    "nsfwjs": "^4.4.0",
+    "pngjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@types/pngjs": "^6.0.5"
+  }
+}

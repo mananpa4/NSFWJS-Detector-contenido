@@ -40,7 +40,13 @@ docker compose -f docker/docker-compose.yml up --build
 
 ## Estado
 
-✅ **Scaffold híbrido verificado** (2026-09-16): decisión + texto + agregación con tests en verde, py-svc con degradación elegante, ffmpeg e2e real (3s→3 frames), Docker listo. Pendiente: inferencia real NSFWJS/ONNX/YOLO, suscripción BullMQ del worker, calibración con datos reales. Detalle en [`CLAUDE_CONTEXT.md`](./CLAUDE_CONTEXT.md), diseño en [`CLAUDE.md`](./CLAUDE.md) y [`docs/`](./docs).
+✅ **Inferencia NSFWJS real para imagen y vídeo** (2026-10-26): `packages/nsfw`
+clasifica de verdad (TensorFlow.js, sin dependencias nativas) y el pipeline de
+vídeo (`probe → frames 1 fps → batch → agregación máx+ratio`) corre con él por
+defecto. Extensiones de vídeo ampliadas a 34 (`avi`, `mkv`, `wmv`, `flv`,
+`mpeg`, `ts`, `3gp`, `vob`, `rm`… además de `mp4`/`mov`/`webm`). 43/43 tests.
+
+✅ **Scaffold híbrido verificado** (2026-09-16): decisión + texto + agregación con tests en verde, py-svc con degradación elegante, ffmpeg e2e real (3s→3 frames), Docker listo. Pendiente: ONNX/YOLO en py-svc, suscripción BullMQ del worker, calibración con datos reales. Detalle en [`CLAUDE_CONTEXT.md`](./CLAUDE_CONTEXT.md), diseño en [`CLAUDE.md`](./CLAUDE.md) y [`docs/`](./docs).
 
 ## Seguridad y legal
 
