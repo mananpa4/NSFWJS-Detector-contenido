@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from './config/index.js';
 import { ForbiddenWords } from './text/forbiddenWords.js';
+import { MarketplaceDictionary } from './text/marketplaceDictionary.js';
 import { WordSet } from './text/wordSet.js';
 import { MemoryQueue, BullMqQueue, type JobQueue } from './queue/index.js';
 import { MemoryStore, PostgresStore, SqliteStore, type Store } from './store/index.js';
@@ -16,6 +17,7 @@ export interface Deps {
   imageClassifier: ImageClassifier;
   pySvc: PySvc;
   textFilter: ForbiddenWords | null;
+  marketplaceFilter: MarketplaceDictionary | null;
 }
 
 function loadWordList(): string[] {
@@ -32,6 +34,16 @@ function loadWordList(): string[] {
   const envExtra = process.env.FORBIDDEN_EXTRA ?? '';
   if (envExtra !== '') words.push(...WordSet.parse(envExtra));
   return words;
+}
+
+function loadMarketplaceFilter(): MarketplaceDictionary | null {
+  const here = dirname(fileURLToPath(import.meta.url));
+  try {
+    const raw = readFileSync(join(here, '..', '..', 'data', 'marketplace-es.json'), 'utf8');
+    return MarketplaceDictionary.fromJson(raw);
+  } catch {
+    return null;
+  }
 }
 
 export function buildDeps(): Deps {
@@ -59,5 +71,7 @@ export function buildDeps(): Deps {
       ? new ForbiddenWords(new WordSet(loadWordList(), [], removed))
       : null;
 
-  return { store, queue, imageClassifier, pySvc, textFilter };
+  const marketplaceFilter = config.textFilter === 'embedded' ? loadMarketplaceFilter() : null;
+
+  return { store, queue, imageClassifier, pySvc, textFilter, marketplaceFilter };
 }

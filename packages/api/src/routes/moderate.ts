@@ -30,12 +30,41 @@ export function moderateRouter(deps: Deps): Router {
       }
       const textHits = deps.textFilter === null || ocrText === '' ? 0 : deps.textFilter.countHits(ocrText);
 
+      // Scan marketplace sobre el texto extraido por OCR (contacto, pagos fuera, etc.).
+      const mScan =
+        deps.marketplaceFilter !== null && ocrText !== '' ? deps.marketplaceFilter.scan(ocrText) : null;
+
       const result = decide(
-        { scores, faceCount: faces.count, textHits },
+        {
+          scores,
+          faceCount: faces.count,
+          textHits,
+          ...(mScan !== null
+            ? {
+                marketplaceRisk: mScan.riskLevel,
+                marketplaceScore: mScan.score,
+                marketplaceCategories: mScan.matchedCategories,
+                obfuscationDetected: mScan.obfuscationDetected,
+              }
+            : {}),
+        },
         `${deps.imageClassifier.name}+faces+ocr`,
       );
+
       const record: ModerationRecord = {
         ...result,
+        ...(mScan !== null
+          ? {
+              marketplace: {
+                riskLevel: mScan.riskLevel,
+                action: mScan.action,
+                score: mScan.score,
+                matchedCategories: mScan.matchedCategories,
+                obfuscationDetected: mScan.obfuscationDetected,
+                escalateToHuman: mScan.escalateToHuman,
+              },
+            }
+          : {}),
         id: randomUUID(),
         kind: 'image',
         createdAt: new Date().toISOString(),
@@ -53,9 +82,37 @@ export function moderateRouter(deps: Deps): Router {
     const text = String(req.body?.text ?? '');
     const textHits = deps.textFilter === null ? 0 : deps.textFilter.countHits(text);
     const censored = deps.textFilter === null ? text : deps.textFilter.censor(text);
-    const result = decide({ textHits }, 'forbidden-words-embedded');
+
+    const mScan = deps.marketplaceFilter !== null ? deps.marketplaceFilter.scan(text) : null;
+
+    const result = decide(
+      {
+        textHits,
+        ...(mScan !== null
+          ? {
+              marketplaceRisk: mScan.riskLevel,
+              marketplaceScore: mScan.score,
+              marketplaceCategories: mScan.matchedCategories,
+              obfuscationDetected: mScan.obfuscationDetected,
+            }
+          : {}),
+      },
+      'forbidden-words-embedded',
+    );
     const record: ModerationRecord = {
       ...result,
+      ...(mScan !== null
+        ? {
+            marketplace: {
+              riskLevel: mScan.riskLevel,
+              action: mScan.action,
+              score: mScan.score,
+              matchedCategories: mScan.matchedCategories,
+              obfuscationDetected: mScan.obfuscationDetected,
+              escalateToHuman: mScan.escalateToHuman,
+            },
+          }
+        : {}),
       id: randomUUID(),
       kind: 'text',
       createdAt: new Date().toISOString(),

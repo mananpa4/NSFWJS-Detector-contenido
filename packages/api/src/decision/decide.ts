@@ -44,6 +44,19 @@ export function decide(signals: ModerationSignals, modelVersion: string): Modera
     reasons.push(`palabras-prohibidas=${hits} >= review(${t.textReviewHits})`);
   }
 
+  // Senales marketplace (comunicacion prohibida, pagos fuera de plataforma, etc.).
+  const mRisk = signals.marketplaceRisk;
+  if (mRisk === 'HIGH') {
+    blocked = true;
+    reasons.push(`marketplace=HIGH score=${signals.marketplaceScore ?? 0} cats=${(signals.marketplaceCategories ?? []).join(',')}`);
+  } else if (mRisk === 'MEDIUM') {
+    risky = true;
+    reasons.push(`marketplace=MEDIUM score=${signals.marketplaceScore ?? 0}`);
+  }
+  if (signals.obfuscationDetected === true) {
+    reasons.push('evasion=ofuscaucion-detectada');
+  }
+
   if (signals.vlmRisky === true) {
     risky = true;
     reasons.push('vlm-2a-opinion=riesgoso');

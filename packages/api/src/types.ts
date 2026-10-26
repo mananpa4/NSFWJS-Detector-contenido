@@ -25,6 +25,14 @@ export interface ModerationSignals {
   textHits?: number;
   /** La 2a opinion VLM marco el contenido como riesgoso. */
   vlmRisky?: boolean;
+  /** Riesgo marketplace (LOW/MEDIUM/HIGH) calculado por MarketplaceDictionary. */
+  marketplaceRisk?: 'LOW' | 'MEDIUM' | 'HIGH';
+  /** Score acumulado del scan marketplace (suma de senales). */
+  marketplaceScore?: number;
+  /** Categorias marketplace coincidentes (C1-C12). */
+  marketplaceCategories?: string[];
+  /** Hubo ofuscaucion/evasion deliberada. */
+  obfuscationDetected?: boolean;
 }
 
 /** Resultado versionado de moderacion (contrato de toda funcion de decision). */
@@ -36,6 +44,15 @@ export interface ModerationResult {
   modelVersion: string;
   latencyMs: number;
   scores?: NsfwScores;
+  /** Detalle del scan marketplace si se ejecuto. */
+  marketplace?: {
+    riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+    action: string;
+    score: number;
+    matchedCategories: string[];
+    obfuscationDetected: boolean;
+    escalateToHuman: boolean;
+  };
 }
 
 /** Trabajo de video en cola. */
